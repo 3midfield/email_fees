@@ -1,0 +1,308 @@
+service: ai-agent-marketing
+
+provider:
+  name: aws
+  runtime: python3.10
+  stage: dev
+  region: us-east-1
+  # iam: 
+  #   role:
+  #     statements:
+  #         # Allow functions to list all buckets
+  #         - Effect: Allow
+  #           Action: 's3:ListBucket'
+  #           Resource: '*'
+  #         # Allow functions to read/write objects in a bucket
+  #         - Effect: Allow
+  #           Action:
+  #             - 's3:GetObject'
+  #             - 's3:PutObject'
+  #             - 'lambda:InvokeFunction'
+  #           Resource:
+  #             - 'arn:aws:s3:::csv-bucket-ai-agent/*'
+
+package:
+  individually: true
+  patterns:
+    - '!**'
+
+
+resources:
+      Resources:
+        StepFunctionFailureRule:
+          Type: 'AWS::Events::Rule'
+          Properties:
+            Description: 'Trigger Lambda when Step Function fails'
+            EventPattern:
+              source:
+                - 'aws.states'
+              detail-type:
+                - 'Step Functions Execution Status Change'
+              detail:
+                stateMachineArn:
+                  - 'arn:aws:states:us-east-1:343445026739:stateMachine:FullUnderscoreaiUnderscoreagentStepFunctionsStateMachine-vJkfuNkf7JGX'
+                stateEnteredDetail:
+                  status:
+                    - 'FAILED'
+            State: 'ENABLED'
+            Targets:
+              - Id: 'TargetId1'
+                Arn: 'arn:aws:lambda:us-east-1:343445026739:function:ai-agent-marketing-dev-stepfailure'
+        MyApiGateway:
+          Type: 'AWS::ApiGateway::RestApi'
+          Properties:
+            Name: 'email-data-api'
+        MyApiGatewayResourceAccept:
+          Type: 'AWS::ApiGateway::Resource'
+          Properties:
+            RestApiId:
+              Ref: 'MyApiGateway'
+            ParentId:
+              Fn::GetAtt:
+                - MyApiGateway
+                - RootResourceId
+            PathPart: 'accept'
+        MyApiGatewayResourceReject:
+          Type: 'AWS::ApiGateway::Resource'
+          Properties:
+            RestApiId:
+              Ref: 'MyApiGateway'
+            ParentId:
+              Fn::GetAtt:
+                - MyApiGateway
+                - RootResourceId
+            PathPart: 'reject'
+        MyApiGatewayMethodAccept:
+          Type: 'AWS::ApiGateway::Method'
+          Properties:
+            RestApiId:
+              Ref: 'MyApiGateway'
+            ResourceId:
+              Ref: 'MyApiGatewayResourceAccept'
+            HttpMethod: 'GET'
+            AuthorizationType: 'NONE'
+            Integration:
+              Type: 'AWS_PROXY'
+              IntegrationHttpMethod: 'GET'
+              Uri: 'arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:343445026739:function:ai-agent-marketing-dev-tasktoken/invocations'
+              PassthroughBehavior: 'WHEN_NO_MATCH'
+        MyApiGatewayMethodReject:
+          Type: 'AWS::ApiGateway::Method'
+          Properties:
+            RestApiId:
+              Ref: 'MyApiGateway'
+            ResourceId:
+              Ref: 'MyApiGatewayResourceReject'
+            HttpMethod: 'GET'
+            AuthorizationType: 'NONE'
+            Integration:
+              Type: 'AWS_PROXY'
+              IntegrationHttpMethod: 'GET'
+              Uri: 'arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:343445026739:function:ai-agent-marketing-dev-tasktoken/invocations'
+              PassthroughBehavior: 'WHEN_NO_MATCH'
+        usersTable1:
+          Type: AWS::DynamoDB::Table
+          Properties:
+            TableName: Name
+            BillingMode: PAY_PER_REQUEST
+            AttributeDefinitions:
+              - AttributeName: Company Name
+                AttributeType: S
+            KeySchema:
+              - AttributeName: Company Name
+                KeyType: HASH
+        usersTable2:
+          Type: AWS::DynamoDB::Table
+          Properties:
+            TableName: table-one
+            BillingMode: PAY_PER_REQUEST
+            AttributeDefinitions:
+              - AttributeName: testing
+                AttributeType: S
+            KeySchema:
+              - AttributeName: testing
+                KeyType: HASH
+              
+functions:
+  stepfailure:
+    handler: step_failure.send_email
+    timeout: 20
+    events:
+      - eventBridge:
+          eventBus: default
+          pattern:
+            source:
+              - aws.states
+            detail-type:
+              - "Step Functions Execution Status Change"
+            detail:
+              status:
+                - "FAILED"
+    role: arn:aws:iam::343445026739:role/receive-from-sqs
+    package:
+      patterns:
+        step_failure.py
+  tasktoken:
+    handler: tasktoken.start_step
+    timeout: 20
+    events:
+      - http:
+          path: accept
+          method: get
+      - http:
+          path: reject
+          method: get
+    role: arn:aws:iam::343445026739:role/receive-from-sqs
+    package:
+      patterns:
+        tasktoken.py
+  send_approval:
+    handler: send_approval.send_email
+    timeout: 20
+    role: arn:aws:iam::343445026739:role/receive-from-sqs
+    package:
+      patterns:
+        send_approval.py
+  hubspot_send:
+    handler: hubspot_send.send
+    timeout: 20
+    role: arn:aws:iam::343445026739:role/receive-from-sqs
+    layers:
+      - arn:aws:lambda:us-east-1:343445026739:layer:withopenai:1
+    package:
+      patterns:
+        hubspot_send.py
+  testing:
+    handler: testing.nice
+    timeout: 20
+    role: arn:aws:iam::343445026739:role/receive-from-sqs
+    package:
+      patterns:
+        - testing.py
+    events:
+      - s3:
+          bucket: second-fua-csv-bucket-ai-agent
+          event: s3:ObjectCreated:*
+  google_search:
+    handler: google_search.search
+    timeout: 120
+    role: arn:aws:iam::343445026739:role/receive-from-sqs
+    layers:
+      - arn:aws:lambda:us-east-1:343445026739:layer:googleapi:1
+      - arn:aws:lambda:us-east-1:343445026739:layer:beautifulsoup:1
+    package:
+      patterns:
+        - google_search.py
+  post_sqs:
+    handler: post_sqs.pinecone_push
+    timeout: 120
+    role: arn:aws:iam::343445026739:role/receive-from-sqs
+    layers:
+      - arn:aws:lambda:us-east-1:343445026739:layer:withopenai:1
+      - arn:aws:lambda:us-east-1:343445026739:layer:tiktoken:1
+    package:
+      patterns:
+        - post_sqs.py
+  email_push:
+    handler: email_push.hubspot
+    timeout: 180
+    role: arn:aws:iam::343445026739:role/receive-from-sqs
+    layers:
+      - arn:aws:lambda:us-east-1:343445026739:layer:withopenai:1
+    package:
+      patterns:
+        - email_push.py
+
+
+stepFunctions:
+  stateMachines:
+    full_ai_agent:
+      definition:
+        StartAt: File Analysis
+        States:
+          File Analysis:
+            Type: Map
+            ItemProcessor:
+              ProcessorConfig:
+                Mode: DISTRIBUTED
+                ExecutionType: STANDARD
+              StartAt: Googlesearch
+              States:
+                Googlesearch:
+                  Type: Task
+                  Resource: arn:aws:lambda:us-east-1:343445026739:function:ai-agent-marketing-dev-google_search
+                  Next: Pineconepush
+                Pineconepush:
+                  Type: Task
+                  Resource: arn:aws:lambda:us-east-1:343445026739:function:ai-agent-marketing-dev-post_sqs
+                  Next: EmailHubspot
+                EmailHubspot:
+                  Type: Task
+                  Resource: arn:aws:lambda:us-east-1:343445026739:function:ai-agent-marketing-dev-email_push
+                  End: true
+            Label: FileAnalysis
+            MaxConcurrency: 1000
+            ItemsPath: $.csv 
+            Parameters: 
+              row.$: "$$.Map.Item.Value"
+              json_data.$: "$.json_file"
+            Next: TokenCreator
+          TokenCreator:
+            Type: Task
+            Resource: "arn:aws:states:::lambda:invoke.waitForTaskToken"
+            Parameters: 
+              FunctionName: arn:aws:lambda:us-east-1:343445026739:function:ai-agent-marketing-dev-send_approval
+              Payload:
+                "input.$": "$"
+                "token.$": "$$.Task.Token"
+            Next: HubspotPush
+          HubspotPush: 
+            Type: "Map"
+            ItemsPath: "$.data"
+            Iterator: 
+              StartAt: "Process Item"
+              States: 
+                Process Item: 
+                  Type: "Task"
+                  Resource: arn:aws:lambda:us-east-1:343445026739:function:ai-agent-marketing-dev-hubspot_send
+                  End: true
+            End: true
+
+          
+
+# stepFunctions:
+#   stateMachines:
+#     MyMapState:
+#     full_ai_agent:
+#       definition:
+#         StartAt: MyMapState
+#         States:  
+#           MyMapState:
+#             Type: Map
+#             ItemsPath: "$.specificPart"
+#             Iterator:
+#               StartAt: MyTaskState
+#               States:
+#                 MyTaskState:
+#                   Type: Task
+#                   Resource: arn:aws:lambda:REGION:ACCOUNT_ID:function:FUNCTION_NAME
+#                   End: true
+#                 Googlesearch:
+#                   Type: Task
+#                   Resource: arn:aws:lambda:us-east-1:343445026739:function:ai-agent-marketing-dev-google_search
+#                   Next: Pineconepush
+#                 Pineconepush:
+#                   Type: Task
+#                   Resource: arn:aws:lambda:us-east-1:343445026739:function:ai-agent-marketing-dev-post_sqs
+#                   Next: EmailHubspot
+#                   End: true
+#           EmailHubspot:
+#             Type: Task
+#             Resource: arn:aws:lambda:us-east-1:343445026739:function:ai-agent-marketing-dev-email_push
+#             End: true
+
+plugins:
+  - serverless-offline
+  - serverless-step-functions
+  - serverless-s3-local
+  - serverless-python-requirements
