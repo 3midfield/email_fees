@@ -161,7 +161,7 @@ def send(event, context):
     
     data = push_to_hubspot(emails, row)
     print(data)
-    access_token = 'pat-na1-d0ccbb98-5138-481c-802f-5883dd9e5a2b'
+    access_token = '**************'
     headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
