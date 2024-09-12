@@ -9,14 +9,13 @@ from langchain.vectorstores import Chroma, Pinecone
 
 
 def csv_pinecone():
-    pinecone.init(api_key='2af041ae-aeae-4970-92ef-123f57f551c8',
-                environment='us-west4-gcp-free')
+    pinecone.init(api_key='*************')
     # pinecone.create_index("nice", dimension = 1536)
     model_name = 'text-embedding-ada-002'
 
     embeddings = OpenAIEmbeddings(
         model=model_name,
-        openai_api_key='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'
+        openai_api_key='*****************'
     )
     loader = CSVLoader('with_email.csv')
 
