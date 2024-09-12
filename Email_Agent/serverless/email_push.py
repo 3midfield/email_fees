@@ -32,7 +32,7 @@ from langchain.schema import HumanMessage
 #     zoom_info_company = dataframe["ZoomInfo Company Profile URL"]
 #     linkedin_company = dataframe["LinkedIn Company Profile URL"]
 #     department = dataframe["Department"]
-#     access_token = 'pat-na1-d0ccbb98-5138-481c-802f-5883dd9e5a2b'
+#     access_token = '*************'
 #     headers = {
 #             'Content-Type': 'application/json',
 #             'Accept': 'application/json',
