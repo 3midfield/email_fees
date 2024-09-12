@@ -30,12 +30,12 @@ from langchain.utilities import ApifyWrapper
 from googleapiclient.discovery import build
 
 
-os.environ["APIFY_API_TOKEN"] = "apify_api_AuBl8RjmGzy2d1BqAAFHUnqU0WdXBE1501QL"
-os.environ["OPENAI_API_KEY"] = "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"
-openai.api_key = "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"
+os.environ["APIFY_API_TOKEN"] = "***********************"
+os.environ["OPENAI_API_KEY"] = "**************"
+openai.api_key = "******************"
 
 # PINECONE_ENV = getpass.getpass("us-west1-gcp")
-# PINECONE_API_KEY = getpass.getpass("2af041ae-aeae-4970-92ef-123f57f551c8")
+# PINECONE_API_KEY = getpass.getpass("*********************")
 
 
 
