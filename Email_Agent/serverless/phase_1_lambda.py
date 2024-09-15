@@ -136,4 +136,4 @@ def push_to_pinecone(csv_row):
         docs = split_docs(documents)
         print(docs)
         index = Pinecone.from_documents(docs, embeddings, index_name="nice")
-        push_company_name(name, "us-east-2", 'AKIATHO4DCHKADOALXEX', 'wtAIEuZlZri61egkzw/NRjVJ4uvcq/c8YJL4Wvws')
+        push_company_name(name, "us-east-2", '', '')
