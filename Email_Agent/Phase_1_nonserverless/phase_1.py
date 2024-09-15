@@ -11,7 +11,7 @@ from langchain.document_loaders import CSVLoader
 from langchain.document_loaders import WebBaseLoader
 
 search_list = []
-service = build('customsearch', 'v1', developerKey='AIzaSyDMuDfrL2bFwL6jfCK-Ugii20lEcn71Yhw')
+service = build('customsearch', 'v1', developerKey='')
 pinecone.init(api_key='2af041ae-aeae-4970-92ef-123f57f551c8',
             environment='us-west4-gcp-free')
 
