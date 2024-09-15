@@ -110,7 +110,7 @@ def search(event, context):
             soup = BeautifulSoup(snippet + ' ' + og_description, 'html.parser')
             text = soup.get_text()
             relevant_texts = relevant_texts + text
-        push_company_name(name, "us-east-1", 'AKIAU75XLG6ZZU5LPIPA', 'E6wMgDBijh9btF/ZMrcAOHFYpmoz0WAXYL9/eOxR')
+        push_company_name(name, "us-east-1", '', '')
      
         return {
             'statusCode': 200,
