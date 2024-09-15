@@ -4,13 +4,13 @@ import pandas as pd
 from langchain.document_loaders import WebBaseLoader
 
 
-# Google Search API Key: AIzaSyC7Pzfb-S3Z6YIjtXC2CZYAAvUxR-_3Hgs
-# Google Search Engine ID: 6064656ace39e41fc
+# Google Search API Key: 
+# Google Search Engine ID: 
 
 # Could even add the WebBaseLoader if more information is needed after our
 
 list = []
-service = build('customsearch', 'v1', developerKey='AIzaSyCjvYaLI190wdKwqlq8vgXBqdMFKhEl_iU')
+service = build('customsearch', 'v1', developerKey='')
 with open('/Users/alexanderadams/ForUsAll-1/first_5.csv') as csv_file:
     # should be organized.csv when actually running(this is just for training)
     dataframe = pd.read_csv(csv_file)
