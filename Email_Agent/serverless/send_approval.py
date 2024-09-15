@@ -25,7 +25,7 @@ def add_data(data, region, key_id, secret_key):
     )
 
 def send_email(event, context):
-    add_data(event['input'], "us-east-1", 'AKIAU75XLG6ZZU5LPIPA', 'E6wMgDBijh9btF/ZMrcAOHFYpmoz0WAXYL9/eOxR')
+    add_data(event['input'], "us-east-1", '', '')
     print(event)
     token = event['token']
     email_body = []
