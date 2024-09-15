@@ -40,7 +40,7 @@ def push_to_hubspot(email_list, dataframe):
     zoom_info_company = dataframe["ZoomInfo Company Profile URL"]
     linkedin_company = dataframe["LinkedIn Company Profile URL"]
     department = dataframe["Department"]
-    access_token = 'pat-na1-d0ccbb98-5138-481c-802f-5883dd9e5a2b'
+    access_token = ''
     headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
@@ -186,11 +186,11 @@ def push_similarity_search(dictionary_data):
 
     embeddings = OpenAIEmbeddings(
         model=model_name,
-        openai_api_key='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'
+        openai_api_key=''
     )
     # Your query
     query = first_name + ' ' + last_name + ' ' + company_name
-    pinecone.init(api_key='2af041ae-aeae-4970-92ef-123f57f551c8',
+    pinecone.init(api_key='',
                 environment='us-west4-gcp-free')
 
     #Iterate through all the people in the csv
@@ -216,7 +216,7 @@ def push_similarity_search(dictionary_data):
     # print(result['results'])
     email_list = []
     # Replace 'your_api_key' with your actual API key
-    openai.api_key = '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'
+    openai.api_key = ''
     
     # The query you want to send
     query = 'write an email that has no underscores or dashes and is casual, concise and written to an 8th grade reading level that includes a salutation saying Hi ' + first_name + ' and an email sign off saying Best Regards coming from Drew Miller of no more than 4 sentences, including: 1 subject line at the very beginning of the email titled Subject: , 1 personalized sentence that is unique to their company to grab their attention that shows we researched their company and that ties their company mission to offering a great 401(k), 1 Sentence offering a 401(k) shopping guide that can help them quickly evaluate top 401k providers, and 1 Question that elicits a reply using this information: ' + information + background
@@ -227,7 +227,7 @@ def push_similarity_search(dictionary_data):
     # 1 Question that elicits a reply from Steam Logistics."
 
     # Call the API with your query
-    llm = ChatOpenAI(model_name = 'gpt-4', openai_api_key='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')
+    llm = ChatOpenAI(model_name = 'gpt-4', openai_api_key='')
     # Extract and print the response
     email = llm([HumanMessage(content=query)])
     #print(email)
