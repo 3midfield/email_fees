@@ -21,14 +21,14 @@ def pinecone_push(event, context):
     json_data = event['json_data']
     if 'body' in event:
         print(csv_row)
-        pinecone.init(api_key='2af041ae-aeae-4970-92ef-123f57f551c8',
+        pinecone.init(api_key='',
                     environment='us-west4-gcp-free')
 
         model_name = 'text-embedding-ada-002'
 
         embeddings = OpenAIEmbeddings(
             model=model_name,
-            openai_api_key='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'
+            openai_api_key=''
         )
         relevant_texts = event['body']
         with open('/tmp/parsing.txt', 'w') as f:
